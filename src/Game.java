@@ -36,25 +36,29 @@ public class Game extends JComponent {
     Rectangle bottomWall = new Rectangle(0, HEIGHT - 10, WIDTH, 10);
     //hero character
     Rectangle hero = new Rectangle(WIDTH / 2, HEIGHT / 2, 20, 20);
+    //rectangle for the arrow
+    Rectangle arrow = new Rectangle(hero.x, hero.y, 5, 15);
     //hero movement
     boolean wPressed;
     boolean sPressed;
     boolean aPressed;
     boolean dPressed;
+    //arrow fireing
+    boolean downPressed;
+    boolean upPressed;
+    boolean leftPressed;
+    boolean rightPressed;
+    //arrow direction
+    int[] xydir = new int[2];
+    //XY arrow direction-temp setting to zero
+    int Xdir = 0;
+    int Ydir = 0;
     //mouse pressed
     boolean lclick;
     //hero health
     int hearts = 3;
-    //mouse location
-    double mouseX = MouseInfo.getPointerInfo().getLocation().x;
-    double mouseY = MouseInfo.getPointerInfo().getLocation().y;
-    //coordinates of beam end point
-    int[] XYdir = new int[2];
-    //new counter for beam
+    //new counter for arrows
     int count = 0;
-    //beam velocity
-    int avX = 3;
-    int avY = 3;
     //game font
     Font text = new Font("Trade Winds", Font.BOLD, 50);
     //text color
@@ -113,25 +117,6 @@ public class Game extends JComponent {
         //drawing the hero
         g.fillRect(hero.x, hero.y, 20, 20);
 
-        //drawing the beam
-        if (lclick == true) {
-            //set beam color to red
-            g.setColor(Color.red);
-            //getting the cordinates that the mouse is at
-            mouseX = MouseInfo.getPointerInfo().getLocation().x;
-            mouseY = MouseInfo.getPointerInfo().getLocation().y;
-            //call the beam direction method
-            XYdir = beamDirection(mouseX, mouseY, hero.x, hero.y);
-            //draw the arrow
-            g.drawLine(hero.x, hero.y, count * XYdir[0], count * XYdir[1]);
-            //add to counter
-            count++;
-            if (lclick == false) {
-                count = 0;
-            }
-
-        }
-
         //drawing the healthbar
         if (hearts == 3) {
             //set color to green
@@ -149,13 +134,38 @@ public class Game extends JComponent {
             g.fillRect(hero.x - 5, hero.y + 25, 10, 10);
         }
 
+        //arrows
+        //if a key was pressed to fire an arrow
+
+        //horozontal shot
+        if (leftPressed == true) {
+            //red arrow
+            g.setColor(Color.red);
+            g.fillRect(arrow.x, arrow.y, 15, 5);
+        }
+        if (rightPressed == true) {
+            //red arrow
+            g.setColor(Color.red);
+            g.fillRect(arrow.x, arrow.y, 15, 5);
+        }
+        //vertical shot
+        if (upPressed == true) {
+            //red arrow
+            g.setColor(Color.red);
+            g.fillRect(arrow.x, arrow.y, 5, 15);
+        }
+        if (downPressed == true) {
+            //red arrow
+            g.setColor(Color.red);
+            g.fillRect(arrow.x, arrow.y, 5, 15);
+        }
 
 
+        // GAME DRAWING ENDS HERE
     }
-    // GAME DRAWING ENDS HERE
-
 // This method is used to do any pre-setup you might need to do
 // This is run before the game loop begins!
+
     public void preSetup() {
         // Any of your pre setup before the loop starts should go here
     }
@@ -216,7 +226,22 @@ public class Game extends JComponent {
             if (dPressed) {
                 hero.x = hero.x + 2;
             }
-
+//           if(upPressed==true){
+//               arrow.x=hero.x;
+//               arrow.y=hero.y;
+//           }
+//           if(downPressed==true){
+//               arrow.x=hero.x;
+//               arrow.y=hero.y;
+//           }
+//           if(leftPressed==true){
+//               arrow.x=hero.x;
+//               arrow.y=hero.y;
+//           }
+//           if(rightPressed==true){
+//               arrow.x=hero.x;
+//               arrow.y=hero.y;
+//           }
 
 
 
@@ -294,6 +319,37 @@ public class Game extends JComponent {
                 dPressed = true;
             }
 
+            //if the arrow keys are pressed, so they can be used to fire arrows
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                //true for only a second
+                downPressed = true;
+                arrow.x = hero.x;
+                arrow.y = hero.y;
+                downPressed = false;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_UP) {
+                //true for only a second
+                upPressed = true;
+                arrow.x = hero.x;
+                arrow.y = hero.y;
+                upPressed = false;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                //true for only a second
+                leftPressed = true;
+                arrow.x = hero.x;
+                arrow.y = hero.y;
+                leftPressed = false;
+
+            }
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                //true for only a seccond
+                rightPressed = true;
+                arrow.x = hero.x;
+                arrow.y = hero.y;
+                rightPressed = false;
+            }
+
         }
 
         // if a key has been released
@@ -313,6 +369,20 @@ public class Game extends JComponent {
                 dPressed = false;
             }
 
+            //if the arrow keys are released
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                downPressed = false;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_UP) {
+                upPressed = false;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+                leftPressed = false;
+            }
+            if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+                rightPressed = false;
+            }
+
         }
     }
 
@@ -325,53 +395,5 @@ public class Game extends JComponent {
 
         // starts the game loop
         game.run();
-    }
-//method for fireing arrows
-
-    public static int[] beamDirection(double mouseX, double mouseY, int heroX, int heroY) {
-        //getting the angle it should fire at
-        //if it would be undefined
-        int[] XYdir = new int[2];
-        //placeholder x and y values
-        int x = 0;
-        int y = 0;
-        //if it would be undefined
-        if(heroX==(int)(mouseX)){
-            x=0;
-            if(mouseY<heroY){
-                y=-1;
-            }
-            if(mouseY>heroY){
-                y=1;
-            }
-        }
-        //if its not undefined
-        if(!(heroX==(int)(mouseX))){
-            
-        }
-
-//        //temp setting Xdir and Ydir
-//        int Xdir = 0;
-//        int Ydir = 0;
-//
-//        //direction of thing
-//        if (mouseX > heroX) {
-//            Xdir = 1;
-//        }
-//        if (mouseX < heroX) {
-//            Xdir = -1;
-//        }
-//        if (mouseY > heroY) {
-//            Ydir = 1;
-//        }
-//        if (mouseY < heroY) {
-//            Ydir = -1;
-//        }
-//        //filling XYdir array to return values
-//        XYdir[0] = Xdir;
-//        XYdir[1] = Ydir;
-
-        //return the direction of beam    
-        return XYdir;
     }
 }
