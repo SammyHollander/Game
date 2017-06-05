@@ -34,8 +34,12 @@ public class Game extends JComponent {
     Rectangle rightWall = new Rectangle(WIDTH - 10, 0, 10, HEIGHT);
     Rectangle topWall = new Rectangle(0, 0, WIDTH, 10);
     Rectangle bottomWall = new Rectangle(0, HEIGHT - 10, WIDTH, 10);
+    //hole the mosters come from
+    Rectangle hole = new Rectangle(WIDTH / 2 - 50, HEIGHT / 2 - 50, 100, 100);
+    //monsters
+    Rectangle monster = new Rectangle(WIDTH / 2, HEIGHT / 2, 15, 15);
     //hero character
-    Rectangle hero = new Rectangle(WIDTH / 2, HEIGHT / 2, 20, 20);
+    Rectangle hero = new Rectangle(0, 0, 20, 20);
     //rectangle for the arrow
     Rectangle arrow = new Rectangle(hero.x, hero.y, 5, 15);
     //hero movement
@@ -48,6 +52,11 @@ public class Game extends JComponent {
     boolean upPressed;
     boolean leftPressed;
     boolean rightPressed;
+    //death by falling boolean
+    boolean falldeath;
+    //random numbers (setting temproarily)
+    int randNum1=0;
+    int randNum2=0;
     //arrow direction
     int[] xydir = new int[2];
     //XY arrow direction-temp setting to zero
@@ -57,7 +66,7 @@ public class Game extends JComponent {
     boolean lclick;
     //hero health
     int hearts = 3;
-    //new counter for arrows
+    //new counter
     int count = 0;
     //game font
     Font text = new Font("Trade Winds", Font.BOLD, 50);
@@ -111,6 +120,8 @@ public class Game extends JComponent {
         g.fillRect(topWall.x, topWall.y, WIDTH, 10);
         //draw the bottom wall
         g.fillRect(bottomWall.x, bottomWall.y, WIDTH, HEIGHT - 10);
+        //draw the hole
+        g.fillRect(hole.x, hole.y, hole.width, hole.height);
 
         //set the color to blue
         g.setColor(Color.blue);
@@ -132,6 +143,30 @@ public class Game extends JComponent {
             //set color to red
             g.setColor(Color.red);
             g.fillRect(hero.x - 5, hero.y + 25, 10, 10);
+        }
+        //drawing random monsters (will only work in randNum2 is >0)
+        for(int i=0; i<randNum2;i++){
+            //setting monster color(yes, its pink)
+            g.setColor(Color.PINK);
+            g.fillRect(monster.x,monster.y,monster.width,monster.height);
+            //reset randNum2 to zero for the next wave
+            if(i==randNum2){
+                randNum2=0;
+            }
+        }
+
+
+
+
+        //if the hero falls down the hole (game over)
+        if (falldeath == true) {
+            //set font color
+            g.setColor(textColor);
+            //set font
+            g.setFont(text);
+            //game over screen
+            g.drawString("And the hero fell to his death...", 30, HEIGHT / 2);
+
         }
 
         //arrows
@@ -189,6 +224,21 @@ public class Game extends JComponent {
 
             // all your game rules and move is done in here
             // GAME LOGIC STARTS HERE 
+
+            //check for collisions
+            collisions();
+            //if they fall downt he pit, end the game
+            if (falldeath == true) {
+                done = true;
+            }
+
+            //randomly genorate monsters from the hole every so often
+            //random chance for monsters to spawn if the radom number is greater than 10
+            int randNum1 = (int) (Math.random() * (12 - 1 + 1)) + 1;
+            if (randNum1 > 10) {
+                //get a random number for the number of monsters to spawn
+                int randNum2 = (int) (Math.random() * (5 - 1 + 1)) + 1;
+            }
 
 
             //makeing it so the hero can't walk over the walls of the dungeon
@@ -323,31 +373,23 @@ public class Game extends JComponent {
             if (e.getKeyCode() == KeyEvent.VK_DOWN) {
                 //true for only a second
                 downPressed = true;
-                arrow.x = hero.x;
-                arrow.y = hero.y;
-                downPressed = false;
+
             }
             if (e.getKeyCode() == KeyEvent.VK_UP) {
                 //true for only a second
                 upPressed = true;
-                arrow.x = hero.x;
-                arrow.y = hero.y;
-                upPressed = false;
+
             }
             if (e.getKeyCode() == KeyEvent.VK_LEFT) {
                 //true for only a second
                 leftPressed = true;
-                arrow.x = hero.x;
-                arrow.y = hero.y;
-                leftPressed = false;
+
 
             }
             if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
                 //true for only a seccond
                 rightPressed = true;
-                arrow.x = hero.x;
-                arrow.y = hero.y;
-                rightPressed = false;
+
             }
 
         }
@@ -395,5 +437,13 @@ public class Game extends JComponent {
 
         // starts the game loop
         game.run();
+    }
+    //collision method
+
+    public void collisions() {
+        if (hero.intersects(hole)) {
+            //set falldeath boolean to true
+            falldeath = true;
+        }
     }
 }
