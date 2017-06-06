@@ -54,9 +54,8 @@ public class Game extends JComponent {
     boolean rightPressed;
     //death by falling boolean
     boolean falldeath;
-    //random numbers (setting temproarily)
-    int randNum1=0;
-    int randNum2=0;
+    //random number of spawns (setting temproarily)
+    int spawnNum = 0;
     //arrow direction
     int[] xydir = new int[2];
     //XY arrow direction-temp setting to zero
@@ -144,16 +143,17 @@ public class Game extends JComponent {
             g.setColor(Color.red);
             g.fillRect(hero.x - 5, hero.y + 25, 10, 10);
         }
-        //drawing random monsters (will only work in randNum2 is >0)
-        for(int i=0; i<randNum2;i++){
-            //setting monster color(yes, its pink)
-            g.setColor(Color.PINK);
-            g.fillRect(monster.x,monster.y,monster.width,monster.height);
-            //reset randNum2 to zero for the next wave
-            if(i==randNum2){
-                randNum2=0;
+        //drawing the spawned monsters
+        if (!(spawnNum == 0)) {
+            //draw the number of monsters equal to the number generated
+            for (int i = 0; i < spawnNum; i++) {
+                //set monster color to pink (because I can)
+                g.setColor(Color.pink);
+                //draw the monsters
+                g.fillRect(monster.x, monster.y, monster.width, monster.height);
             }
         }
+
 
 
 
@@ -227,19 +227,13 @@ public class Game extends JComponent {
 
             //check for collisions
             collisions();
-            //if they fall downt he pit, end the game
+            //check for spawns
+            spawnNum = generateRandomNum();
+
+            //if they fall down the pit, end the game
             if (falldeath == true) {
                 done = true;
             }
-
-            //randomly genorate monsters from the hole every so often
-            //random chance for monsters to spawn if the radom number is greater than 10
-            int randNum1 = (int) (Math.random() * (12 - 1 + 1)) + 1;
-            if (randNum1 > 10) {
-                //get a random number for the number of monsters to spawn
-                int randNum2 = (int) (Math.random() * (5 - 1 + 1)) + 1;
-            }
-
 
             //makeing it so the hero can't walk over the walls of the dungeon
             //leftwall
@@ -276,24 +270,29 @@ public class Game extends JComponent {
             if (dPressed) {
                 hero.x = hero.x + 2;
             }
-//           if(upPressed==true){
-//               arrow.x=hero.x;
-//               arrow.y=hero.y;
-//           }
-//           if(downPressed==true){
-//               arrow.x=hero.x;
-//               arrow.y=hero.y;
-//           }
-//           if(leftPressed==true){
-//               arrow.x=hero.x;
-//               arrow.y=hero.y;
-//           }
-//           if(rightPressed==true){
-//               arrow.x=hero.x;
-//               arrow.y=hero.y;
-//           }
 
-
+            //update arrow x and y
+            //if upwards shot
+            if (upPressed) {
+                arrow.y = arrow.y - 4;
+            }
+            //if downwards shot
+            if (downPressed) {
+                arrow.y = arrow.y + 4;
+            }
+            //left shot
+            if (leftPressed) {
+                arrow.x = arrow.x - 4;
+            }
+            //right shot
+            if (rightPressed) {
+                arrow.x = arrow.x + 4;
+            }
+            //if none of the arrow keys are pressed, reset arrow x and y
+            if ((upPressed == false && downPressed == false && leftPressed == false && rightPressed == false)) {
+                arrow.x = hero.x;
+                arrow.y = hero.y;
+            }
 
             // GAME LOGIC ENDS HERE 
             // update the drawing (calls paintComponent)
@@ -441,9 +440,43 @@ public class Game extends JComponent {
     //collision method
 
     public void collisions() {
+        //when the hero falls in the hole
         if (hero.intersects(hole)) {
             //set falldeath boolean to true
             falldeath = true;
         }
+        //when the arrow hits the walls
+        if (arrow.intersects(topWall) || arrow.intersects(bottomWall) || arrow.intersects(leftWall) || arrow.intersects(rightWall)) {
+            //return arrow to hero
+            arrow.x = hero.x;
+            arrow.y = hero.y;
+        }
+       //when the arrow hits the monsters
+        if(arrow.intersects(monster)){
+            //return arrow to hero
+            arrow.x = hero.x;
+            arrow.y = hero.y;
+            //damage/kill monster
+            
+        }
+        
+    }
+
+    public static int generateRandomNum() {
+        //randomly genorate monsters from the hole every so often
+        //random chance for monsters to spawn if the radom number is greater than 10
+        int randNum1 = (int) (Math.random() * (12 - 1 + 1)) + 1;
+        //temp set randNum2 to zero
+        int randNum2 = 0;
+        if (randNum1 > 10) {
+            //get a random number for the number of monsters to spawn between 1 and 6
+            randNum2 = (int) (Math.random() * (5 - 1 + 1)) + 1;
+        }
+        //reset randNum2 if no monsters would spawn
+        if (randNum1 < 10) {
+            randNum2 = 0;
+        }
+
+        return randNum2;
     }
 }
